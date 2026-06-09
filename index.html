@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健身跟练教学</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f8f8f8;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Home */
+        #home.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        #home h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; }
+        #home h1 span { color: #e74c3c; }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            width: 100%;
+            max-width: 860px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: #e8e8e8; }
+        .card-body { padding: 0.8rem 1rem 1rem; }
+        .card-body h2 { font-size: 1rem; font-weight: 700; }
+        .card-body .sub { font-size: 0.78rem; color: #999; margin-bottom: 0.3rem; }
+        .card-body .tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #fff;
+            background: #1a1a1a;
+            padding: 0.1rem 0.5rem;
+            border-radius: 20px;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Detail */
+        .container { max-width: 920px; margin: 0 auto; padding: 0 1rem 2rem; }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 0 0.8rem;
+            flex-wrap: wrap;
+        }
+        .top-bar .back {
+            font-size: 0.82rem;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.2rem 0;
+        }
+        .top-bar .back:hover { color: #e74c3c; }
+        .top-bar .tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #fff;
+            background: #1a1a1a;
+            padding: 0.1rem 0.5rem;
+            border-radius: 20px;
+        }
+        .top-bar h2 { font-size: 1.3rem; font-weight: 700; }
+
+        .day-block { margin-bottom: 1.8rem; }
+        .day-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 0.45rem 0.9rem;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 8px;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .day-title .badge {
+            margin-left: auto;
+            font-size: 0.65rem;
+            background: rgba(255,255,255,0.15);
+            padding: 0.1rem 0.5rem;
+            border-radius: 20px;
+        }
+
+        .video-box {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 0.6rem;
+        }
+        .video-box iframe { width: 100%; height: 100%; border: none; }
+
+        .ex-list { display: flex; flex-direction: column; gap: 0.35rem; }
+        .ex-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.45rem 0.8rem;
+            background: #fafafa;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.15s;
+        }
+        .ex-item:hover { background: #f0f0f0; border-left-color: #e74c3c; }
+        .ex-item .time {
+            flex-shrink: 0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #e74c3c;
+            background: rgba(231,76,60,0.08);
+            padding: 0.15rem 0.45rem;
+            border-radius: 5px;
+            min-width: 44px;
+            text-align: center;
+        }
+        .ex-item .info { flex: 1; }
+        .ex-item .info .name { font-weight: 600; font-size: 0.85rem; }
+        .ex-item .info .meta { font-size: 0.75rem; color: #999; }
+        .ex-item .arrow { color: #ccc; font-size: 0.75rem; flex-shrink: 0; }
+
+        .ex-item.no-link { cursor: default; }
+        .ex-item.no-link:hover { border-left-color: transparent; background: #fafafa; }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        .gallery img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 5px; background: #eee; }
+
+        .video-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #555;
+            margin: 0.8rem 0 0.3rem;
+        }
+
+        @media (max-width: 720px) {
+            .cards { grid-template-columns: repeat(2, 1fr); }
+            #home h1 { font-size: 1.6rem; }
+        }
+        @media (max-width: 500px) {
+            .cards { grid-template-columns: 1fr; max-width: 350px; }
+            .top-bar h2 { font-size: 1.1rem; }
+            .gallery { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===================== HOME ===================== -->
+<div id="home" class="page active">
+    <h1>💪 健身<span>跟练</span>教学</h1>
+    <div class="cards">
+        <div class="card" onclick="show('m1')">
+            <img class="card-img" src="images/cover_sanfenhua.jpg" alt="三分化" loading="lazy">
+            <div class="card-body">
+                <span class="tag">方法一</span>
+                <h2>凯圣王 &amp; 谭成义</h2>
+                <div class="sub">三分化训练 · 推/拉/腿</div>
+            </div>
+        </div>
+        <div class="card" onclick="show('m2')">
+            <img class="card-img" src="images/cover_tanchengyi.jpg" alt="谭成义" loading="lazy">
+            <div class="card-body">
+                <span class="tag">方法二</span>
+                <h2>谭成义</h2>
+                <div class="sub">精准训练法</div>
+            </div>
+        </div>
+        <div class="card" onclick="show('m3')">
+            <img class="card-img" src="images/cover_heibei1.jpg" alt="鬼背小黑" loading="lazy">
+            <div class="card-body">
+                <span class="tag">方法三</span>
+                <h2>鬼背小黑</h2>
+                <div class="sub">背部特训</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== 三分化 ===================== -->
+<div id="m1" class="page">
+    <div class="container">
+        <div class="top-bar">
+            <button class="back" onclick="show('home')">← 返回</button>
+            <span class="tag">方法一</span>
+            <h2>凯圣王 &amp; 谭成义 · 三分化训练</h2>
+        </div>
+
+        <div class="day-block">
+            <div class="day-title">📤 推日 · 胸 + 中束 + 三头 <span class="badge">~70min</span></div>
+            <div class="video-box"><iframe id="v1" src="https://player.bilibili.com/player.html?bvid=BV1CSoKBaEgK&autoplay=0&t=300" allowfullscreen></iframe></div>
+            <div class="ex-list">
+                <a class="ex-item" onclick="seek('v1','BV1CSoKBaEgK',300)"><span class="time">05:00</span><span class="info"><span class="name">杠铃卧推</span><span class="meta">4组 15→12→10→8次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v1','BV1CSoKBaEgK',1200)"><span class="time">20:00</span><span class="info"><span class="name">哑铃上斜卧推</span><span class="meta">4组 × 12次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v1','BV1CSoKBaEgK',2100)"><span class="time">35:00</span><span class="info"><span class="name">双杠臂屈伸</span><span class="meta">4组 × 12次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v1','BV1CSoKBaEgK',2900)"><span class="time">48:20</span><span class="info"><span class="name">仰卧臂屈伸</span><span class="meta">4组 × 5次（大重量）</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v1','BV1CSoKBaEgK',3600)"><span class="time">60:00</span><span class="info"><span class="name">Y字侧平举</span><span class="meta">3组 × 10次（力竭）</span></span><span class="arrow">▶</span></a>
+            </div>
+        </div>
+
+        <div class="day-block">
+            <div class="day-title">📥 拉日 · 背 + 二头 <span class="badge">~70min</span></div>
+            <div class="video-box"><iframe id="v2" src="https://player.bilibili.com/player.html?bvid=BV1v5opBhEDc&autoplay=0&t=300" allowfullscreen></iframe></div>
+            <div class="ex-list">
+                <a class="ex-item" onclick="seek('v2','BV1v5opBhEDc',300)"><span class="time">05:00</span><span class="info"><span class="name">单手钢线下拉</span><span class="meta">4组 12→10→8次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v2','BV1v5opBhEDc',1200)"><span class="time">20:00</span><span class="info"><span class="name">对握下拉</span><span class="meta">4组 × 12次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v2','BV1v5opBhEDc',2100)"><span class="time">35:00</span><span class="info"><span class="name">单手器械划船</span><span class="meta">4组 × 12次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v2','BV1v5opBhEDc',2900)"><span class="time">48:20</span><span class="info"><span class="name">坐姿划船</span><span class="meta">4组 × 15–20次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v2','BV1v5opBhEDc',3600)"><span class="time">60:00</span><span class="info"><span class="name">钢线弯举</span><span class="meta">3组 × 10次</span></span><span class="arrow">▶</span></a>
+            </div>
+        </div>
+
+        <div class="day-block">
+            <div class="day-title">🦵 腿日 · 臀腿 + 核心 <span class="badge">~58min</span></div>
+            <div class="video-box"><iframe id="v3" src="https://player.bilibili.com/player.html?bvid=BV17aovBqEdg&autoplay=0&t=300" allowfullscreen></iframe></div>
+            <div class="ex-list">
+                <a class="ex-item" onclick="seek('v3','BV17aovBqEdg',300)"><span class="time">05:00</span><span class="info"><span class="name">单腿硬拉</span><span class="meta">4组 × 12次/腿</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v3','BV17aovBqEdg',960)"><span class="time">16:00</span><span class="info"><span class="name">保加利亚深蹲</span><span class="meta">4组 × 12次/腿</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v3','BV17aovBqEdg',1620)"><span class="time">27:00</span><span class="info"><span class="name">颈前深蹲</span><span class="meta">4组 × 12次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v3','BV17aovBqEdg',2280)"><span class="time">38:00</span><span class="info"><span class="name">罗马尼亚硬拉</span><span class="meta">4组 × 12次</span></span><span class="arrow">▶</span></a>
+                <a class="ex-item" onclick="seek('v3','BV17aovBqEdg',2880)"><span class="time">48:00</span><span class="info"><span class="name">山羊挺身</span><span class="meta">3组 × 15次</span></span><span class="arrow">▶</span></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== 谭成义 ===================== -->
+<div id="m2" class="page">
+    <div class="container">
+        <div class="top-bar">
+            <button class="back" onclick="show('home')">← 返回</button>
+            <span class="tag">方法二</span>
+            <h2>谭成义 · 精准训练法</h2>
+        </div>
+
+        <div class="video-box"><iframe id="v4" src="https://player.bilibili.com/player.html?bvid=BV1FcdZBNEm3&autoplay=0&t=60" allowfullscreen></iframe></div>
+        <div class="ex-list">
+            <a class="ex-item" onclick="seek('v4','BV1FcdZBNEm3',60)"><span class="time">01:00</span><span class="info"><span class="name">三分化框架讲解</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v4','BV1FcdZBNEm3',300)"><span class="time">05:00</span><span class="info"><span class="name">主线动作选择原则</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v4','BV1FcdZBNEm3',480)"><span class="time">08:00</span><span class="info"><span class="name">渐进加重与疲劳管理</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v4','BV1FcdZBNEm3',700)"><span class="time">11:40</span><span class="info"><span class="name">意念-肌肉连接技巧</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v4','BV1hCdSBaEvw',60)"><span class="time">术语</span><span class="info"><span class="name">名词释义：RM / RPE / 超量恢复</span></span><span class="arrow">▶</span></a>
+        </div>
+
+        <div class="video-label">经典跟练动作示范</div>
+        <div class="video-box"><iframe id="v5" src="https://player.bilibili.com/player.html?bvid=BV1v5opBhEDc&autoplay=0&t=300" allowfullscreen></iframe></div>
+        <div class="ex-list">
+            <a class="ex-item" onclick="seek('v5','BV1v5opBhEDc',300)"><span class="time">05:00</span><span class="info"><span class="name">反手高位下拉</span><span class="meta">4组×12–15次</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v5','BV1v5opBhEDc',1200)"><span class="time">20:00</span><span class="info"><span class="name">窄握坐姿划船</span><span class="meta">4组×12–15次</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v5','BV1CSoKBaEgK',2900)"><span class="time">48:20</span><span class="info"><span class="name">单臂绳索下压（三头）</span><span class="meta">3组×12次/臂</span></span><span class="arrow">▶</span></a>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== 鬼背小黑 ===================== -->
+<div id="m3" class="page">
+    <div class="container">
+        <div class="top-bar">
+            <button class="back" onclick="show('home')">← 返回</button>
+            <span class="tag">方法三</span>
+            <h2>鬼背小黑 · 背部特训</h2>
+        </div>
+
+        <div class="gallery">
+            <img src="images/cover_heibei2.jpg" alt="鬼背小黑" loading="lazy">
+            <img src="images/pic_heibei_1.jpg" alt="" loading="lazy">
+            <img src="images/pic_heibei_2.jpg" alt="" loading="lazy">
+            <img src="images/cover_heibei1.jpg" alt="" loading="lazy">
+        </div>
+
+        <div class="video-label">鬼背小黑 · 背部教学短片</div>
+        <div class="video-box"><iframe id="v6" src="https://player.bilibili.com/player.html?bvid=BV1Bx421S7Gx&autoplay=0" allowfullscreen></iframe></div>
+
+        <div class="video-label">详细动作示范</div>
+        <div class="video-box"><iframe id="v7" src="https://player.bilibili.com/player.html?bvid=BV1v5opBhEDc&autoplay=0&t=300" allowfullscreen></iframe></div>
+        <div class="ex-list">
+            <a class="ex-item" onclick="seek('v7','BV1v5opBhEDc',300)"><span class="time">05:00</span><span class="info"><span class="name">单手钢线下拉</span><span class="meta">背阔肌+圆肌</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v7','BV1v5opBhEDc',1200)"><span class="time">20:00</span><span class="info"><span class="name">对握下拉</span><span class="meta">背阔肌宽度</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v7','BV1v5opBhEDc',2100)"><span class="time">35:00</span><span class="info"><span class="name">单手器械划船</span><span class="meta">中背厚度</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v7','BV1v5opBhEDc',2900)"><span class="time">48:20</span><span class="info"><span class="name">坐姿划船</span><span class="meta">中下背挤压</span></span><span class="arrow">▶</span></a>
+            <a class="ex-item" onclick="seek('v7','BV1v5opBhEDc',3600)"><span class="time">60:00</span><span class="info"><span class="name">直臂下压</span><span class="meta">🎯 大圆肌王牌</span></span><span class="arrow">▶</span></a>
+        </div>
+
+        <div class="video-label">训练动作总览</div>
+        <div class="ex-list">
+            <div class="ex-item no-link"><span class="time">王牌</span><span class="info"><span class="name">改良版直臂下压</span><span class="meta">4组×20–30次 · 大圆肌特化</span></span></div>
+            <div class="ex-item no-link"><span class="time">基础</span><span class="info"><span class="name">引体向上</span><span class="meta">4组×力竭 · 肩胛骨启动</span></span></div>
+            <div class="ex-item no-link"><span class="time">替代</span><span class="info"><span class="name">高位下拉（对握/反握）</span><span class="meta">4组×15–20次</span></span></div>
+            <div class="ex-item no-link"><span class="time">厚度</span><span class="info"><span class="name">绳索划船</span><span class="meta">4组×15–25次</span></span></div>
+            <div class="ex-item no-link"><span class="time">宽度</span><span class="info"><span class="name">单臂哑铃划船</span><span class="meta">4组×12–15次/臂</span></span></div>
+            <div class="ex-item no-link"><span class="time">收尾</span><span class="info"><span class="name">山羊挺身</span><span class="meta">3组×15–20次</span></span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function show(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function seek(id, bvid, t) {
+        const el = document.getElementById(id);
+        if (el) el.src = 'https://player.bilibili.com/player.html?bvid=' + bvid + '&autoplay=1&t=' + t;
+    }
+</script>
+</body>
+</html>
